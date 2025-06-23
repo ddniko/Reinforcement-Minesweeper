@@ -11,8 +11,10 @@ import time
 
 
 rows, cols = (16, 16)
-arrCoordinates = [[0 for i in range(cols)] for j in range(rows)]
+#arrCoordinates = [[0 for i in range(cols)] for j in range(rows)] #omdan til normal array, nemmere at iterere igennem
+arrCoordinates = [0 for i in range(256)]
 arrBoard = [[0 for i in range(cols)] for j in range(rows)]
+arrColors = [(189,189,189),(0,0,255),(12,127,12),(255,0,0),(0,0,123),(123,0,0),(0,123,123)]
 
 
 
@@ -20,35 +22,48 @@ def InitializeBoard():
     Minesweeper = gui.locateOnScreen("minesweeper.png", confidence=0.9)
     i = 0
     for pos in gui.locateAllOnScreen("field.png", grayscale=True, region=(Minesweeper), confidence=0.9):
-        # print(f"{pos} + {i}")
         columb = i / cols
-        # print(f"{int(columb)} + {i%rows}")
-
-        arrCoordinates[int(columb)][i % rows] = pos
+        arrCoordinates[i] = pos
         arrBoard[int(columb)][i % rows] = "O"
-
         i = i + 1
-    print(gui.pixel(int(arrCoordinates[1][0][0]), int(arrCoordinates[1][0][1])))
     global ColorBlank
-    ColorBlank = gui.pixel(int(arrCoordinates[1][0][0]), int(arrCoordinates[1][0][1]))
+    ColorBlank = GetColor(arrCoordinates[0])
+
+    #Debugging
+    #print(ColorBlank == arrColors[0])
+    #print(ColorBlank)
+    #print(arrColors[0])
+    #print(GetMiddlePixel(arrCoordinatesOne[0]))
 
 
 def UpdateBoard():
     print("New Board loading")
     i = 0
-    for row in arrBoard:
+    for x in arrCoordinates:
         columb = i / cols
-        for col in row:
-            if gui.pixel(int(arrCoordinates[int(columb)][i % rows][0]), int(arrCoordinates[int(columb)][i % rows][1])) != ColorBlank:
-                arrBoard[int(columb)][i % rows] = 0
-        print(row)
-    i = i + 1
-    #opdatere ikke ordentligt, tjekker ikke ordentligt array igennem
+        if GetColor(arrCoordinates[i]) != ColorBlank:
+            arrBoard[int(columb)][i % rows] = 0
+        i = i + 1
+    GetBoard()
+
+    #Debugging
+    #print(GetColor(GetMiddlePixel(arrCoordinatesOne[1])))
+    #FindAllColors()
 
 
+def GetColor(pos):
+    return gui.pixel(int(pos[0]), int(pos[1]))
 
 
+def GetMiddlePixel(pos):
+    return [pos[0]+(pos[2]/2), pos[1]+(pos[3]/2)]
 
 def GetBoard():
-    for row in arrCoordinates:
+    for row in arrBoard:
         print(row)
+
+def FindAllColors(): #Debugging - finding colors of all numbers
+    for x in arrCoordinates:
+        color = GetColor(GetMiddlePixel(x))
+        if color != (189,189,189):
+            print(color)
